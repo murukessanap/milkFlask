@@ -361,6 +361,70 @@ def add_purchase():
 		conn.close()
 
 
+@app.route('/updatepurchase', methods=['PUT'])
+def update_purchase():
+	try:		
+		_date = request.form['date']
+		format_str = '%d/%m/%Y' # The format
+		_datetime = dt.datetime.strptime(_date, format_str)
+		print(_datetime)
+		_shift = request.form['shift']
+		_sup_code = request.form['supplier_code']
+		_sup_name = request.form['supplier_name']
+		_qty = request.form['qty']
+		_fat = request.form['fat']
+		_snf = request.form['snf']
+		_rate = request.form['rate']
+		_amount = request.form['amount']
+		print(_amount)		
+		# validate the received values
+		if _datetime and _shift and _sup_code and _sup_name and _qty and _fat and _snf and _rate and _amount and request.method == 'PUT':
+			#do not save password as a plain text
+			#_hashed_password = generate_password_hash(_password)
+			#print(_hashed_password)
+			# save edits
+			print(_amount)
+			sql = "UPDATE milk_purchase SET sup_name=%s,qty=%s,fat=%s,snf=%s,rate=%s,amount=%s WHERE date=%s AND shift=%s AND sup_code=%s"
+			data = (_sup_name, float(_qty), float(_fat), float(_snf), float(_rate), float(_amount), _datetime, int(_shift), int(_sup_code))
+			print(data)
+			conn = mysql.connect()
+			cursor = conn.cursor()
+			cursor.execute(sql, data)
+			conn.commit()
+			flash('purchase updated successfully!')
+			return redirect('/')
+		else:
+			return 'Error while updating rate'
+	except Exception as e:
+		print(e)
+	finally:
+		cursor.close() 
+		conn.close()
+
+
+
+@app.route('/deletepurchase/<date>/<shift>/<sup_code>')
+def delete_purchase(date,shift,sup_code):
+	try:
+		print("date,shit,sup_code",date,shift,sup_code)
+		sql = "DELETE FROM milk_purchase WHERE date=%s AND shift=%s AND sup_code=%s"
+		format_str = '%d-%m-%Y' # The format
+		_datetime = dt.datetime.strptime(date, format_str)
+		print(_datetime)
+		data = (_datetime, int(shift), int(sup_code))
+		#print(data)
+		conn = mysql.connect()
+		cursor = conn.cursor()
+		cursor.execute(sql, data)
+		conn.commit()
+		flash('purchase deleted successfully!')
+		return redirect('/')
+	except Exception as e:
+		print(e)
+	finally:
+		cursor.close() 
+		conn.close()
+
 
 if __name__ == "__main__":
     app.debug = True
