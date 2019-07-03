@@ -244,6 +244,37 @@ def add_rate():
 		conn.close()
 
 
+
+@app.route('/updaterate', methods=['PUT'])
+def update_rate():
+	try:		
+		_fat = request.form['fat']
+		_snf = request.form['snf']
+		_rate = request.form['rate']
+		# validate the received values
+		if _fat and _snf and _rate and request.method == 'PUT':
+			#do not save password as a plain text
+			#_hashed_password = generate_password_hash(_password)
+			#print(_hashed_password)
+			# save edits
+			sql = "UPDATE rate SET rate=%s WHERE fat=%s AND snf=%s"
+			data = (float(_rate), float(_fat), float(_snf))
+			conn = mysql.connect()
+			cursor = conn.cursor()
+			cursor.execute(sql, data)
+			conn.commit()
+			flash('rate updated successfully!')
+			return redirect('/')
+		else:
+			return 'Error while updating rate'
+	except Exception as e:
+		print(e)
+	finally:
+		cursor.close() 
+		conn.close()
+
+
+
 @app.route('/deleterate/<fat>/<snf>')
 def delete_rate(fat,snf):
 	try:
